@@ -15,14 +15,27 @@ body {
   background-color: black;
   color: white;
   font-size: 16px;
-  font-family: "DejaVuSansMono", "DejaVu Sans Mono", monospace;
+  font-family: "DejaVuSansMono", "DejaVu Sans Mono", "VL Gothic", "Consolas", monospace, "Meiryo";
+}
+
+.center-cell {
+  width: 70%;
+  vertical-align: top;
 }
 
 .right-cell {
-  width: 100%;
+  width: 30%;
   vertical-align: top;
 }
 
 .red {
   color: red;
+}
+
+.palegreen {
+  color: #cfc;
+}
+
+.paleblue {
+  color: #ccf;
 }

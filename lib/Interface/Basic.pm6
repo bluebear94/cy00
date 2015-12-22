@@ -7,7 +7,7 @@ unit class Interface::Basic does HTTP::Easy;
 
 has Buf $!cookie;
 has Str $.password;
-has Bool $.loggedIn;
+has Bool $!connected;
 has &!callback;
 has @!dependencies;
 
@@ -33,25 +33,45 @@ sub generate($status, @headers, @con) {
 }
 
 method handler {
-  say "get message";
   my $path = %!env<PATH_INFO>;
   $path = "/index.html" if $path eq "/";
   if $path ~~ / '/game/' (.*) / {
-    # TODO implement game stuff
-    return generate(404, ['Content-Type' => 'text/html'], ["<h1>404 not found!</h1>"])
+    my $req = $0;
+    given $req {
+      when "login" {
+        try {
+          return generate(400, ['Content-Type' => 'text/plain'], ["Already connected!"]) if $!connected;
+          my $password = $.body.decode;
+          my $success = !($!password.defined) || ($!password eq $password);
+          if $success {
+            $!connected = True;
+            return generate(200, ['Content-Type' => 'binary/raw'], [$!cookie]);
+          }
+          return generate(401, ['Content-Type' => 'text/plain'], ['Wrong password!']);
+          CATCH {
+            default {return generate(400, ['Content-Type' => 'text/plain'], ["Password is not a valid UTF-8 string!!"]) if $!connected;}
+          }
+        }
+      }
+      when * {
+        # TODO implement game stuff
+        return generate(404, ['Content-Type' => 'text/html'], ["<h1>404 not found!</h1>"]);
+      }
+    }
   } else {
     my $fullpath = "assets/web$path";
     return generate(404, ['Content-Type' => 'text/html'], ["<h1>404 not found!</h1>"]) unless $fullpath.IO.f;
     my $extension = "";
     $extension = $0 if $path ~~ / '.' (.*) /;
     my $ct = %contentTypes{$extension} // 'text/plain';
-    return generate(200, ['Content-Type' => $ct], [slurp($fullpath, :bin($ct.starts-with("binary")))]);
+    return generate(200, ['Content-Type' => $ct], [slurp($fullpath, :bin($ct.starts-with("bin")))]);
   }
 }
 
 submethod BUILD(:&!callback, :@!dependencies, :$password, :$port, :$debug) {
   $!cookie = "/dev/urandom".IO.open.read(128);
-  $!loggedIn = True unless $!password.defined;
+  $!connected = False;
   $!port = $port;
   $!debug = $debug;
+  $!password = $password;
 }
