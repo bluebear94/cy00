@@ -32,6 +32,10 @@ sub generate($status, @headers, @con) {
   return $res;
 }
 
+sub rawMessage($sc, $body) {
+  return generate($sc, ['Content-Type' => 'text/plain']. [$body]);
+}
+
 method handler {
   my $path = %!env<PATH_INFO>;
   $path = "/index.html" if $path eq "/";
@@ -40,16 +44,16 @@ method handler {
     given $req {
       when "login" {
         try {
-          return generate(400, ['Content-Type' => 'text/plain'], ["Already connected!"]) if $!connected;
+          return rawMessage(400, "Already connected!") if $!connected;
           my $password = $.body.decode;
           my $success = !($!password.defined) || ($!password eq $password);
           if $success {
             $!connected = True;
             return generate(200, ['Content-Type' => 'binary/raw'], [$!cookie]);
           }
-          return generate(401, ['Content-Type' => 'text/plain'], ['Wrong password!']);
+          return rawMessage(401, "Wrong password!");
           CATCH {
-            default {return generate(400, ['Content-Type' => 'text/plain'], ["Password is not a valid UTF-8 string!!"]) if $!connected;}
+            default {return rawMessage(400, "Password is not a valid UTF-8 string!"]) if $!connected;}
           }
         }
       }
