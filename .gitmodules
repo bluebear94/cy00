@@ -1,0 +1,6 @@
+[submodule "unicodetiles.js"]
+	path = unicodetiles.js
+	url = https://github.com/tapio/unicodetiles.js
+[submodule "assets/web/unicodetiles"]
+	path = assets/web/unicodetiles
+	url = https://github.com/tapio/unicodetiles.js
