@@ -2,10 +2,12 @@ use v6;
 
 use HTTP::Easy;
 use HTTP::Status;
+use MIME::Base64;
 
 unit class Interface::Basic does HTTP::Easy;
 
-has Buf $!cookie;
+has Blob $!cookie;
+has Str $!cookie64;
 has Str $.password;
 has Bool $!connected;
 has &!callback;
@@ -67,7 +69,7 @@ method login {
     my $success = !($!password.defined) || ($!password eq $password);
     if $success {
       $!connected = True;
-      return generate(200, ['Content-Type' => 'binary/raw'], [$!cookie]);
+      return rawMessage(200, $!cookie64);
     }
     return rawMessage(401, "Wrong password or none was provided!");
     CATCH {
@@ -77,6 +79,14 @@ method login {
 }
 
 submethod BUILD(:&!callback, :@!dependencies, :$password, :$port, :$debug) {
+  self.resetCookie;
+  $!connected = False;
+  $!port = $port;
+  $!debug = $debug;
+  $!password = $password;
+}
+
+submethod resetCookie {
   try {
     $!cookie = "/dev/urandom".IO.open.read(128);
     CATCH {
@@ -85,8 +95,5 @@ submethod BUILD(:&!callback, :@!dependencies, :$password, :$port, :$debug) {
       }
     }
   }
-  $!connected = False;
-  $!port = $port;
-  $!debug = $debug;
-  $!password = $password;
+  $!cookie64 = MIME::Base64.encode($!cookie);
 }

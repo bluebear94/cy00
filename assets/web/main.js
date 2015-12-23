@@ -49,3 +49,7 @@ function connect() {
   }
   updateSidebar('<div class="palegreen">Logged in.</div>');
 }
+
+function register(keyCode) {
+  
+}
