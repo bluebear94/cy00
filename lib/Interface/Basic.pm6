@@ -33,7 +33,7 @@ sub generate($status, @headers, @con) {
 }
 
 sub rawMessage($sc, $body) {
-  return generate($sc, ['Content-Type' => 'text/plain']. [$body]);
+  return generate($sc, ['Content-Type' => 'text/plain'], [$body]);
 }
 
 method handler {
@@ -43,19 +43,7 @@ method handler {
     my $req = $0;
     given $req {
       when "login" {
-        try {
-          return rawMessage(400, "Already connected!") if $!connected;
-          my $password = $.body.decode;
-          my $success = !($!password.defined) || ($!password eq $password);
-          if $success {
-            $!connected = True;
-            return generate(200, ['Content-Type' => 'binary/raw'], [$!cookie]);
-          }
-          return rawMessage(401, "Wrong password!");
-          CATCH {
-            default {return rawMessage(400, "Password is not a valid UTF-8 string!"]) if $!connected;}
-          }
-        }
+        self.login;
       }
       when * {
         # TODO implement game stuff
@@ -69,6 +57,22 @@ method handler {
     $extension = $0 if $path ~~ / '.' (.*) /;
     my $ct = %contentTypes{$extension} // 'text/plain';
     return generate(200, ['Content-Type' => $ct], [slurp($fullpath, :bin($ct.starts-with("bin")))]);
+  }
+}
+
+method login {
+  try {
+    return rawMessage(400, "Already connected!") if $!connected;
+    my $password = $.body.decode;
+    my $success = !($!password.defined) || ($!password eq $password);
+    if $success {
+      $!connected = True;
+      return generate(200, ['Content-Type' => 'binary/raw'], [$!cookie]);
+    }
+    return rawMessage(401, "Wrong password!");
+    CATCH {
+      default {return rawMessage(400, "Password is not a valid UTF-8 string!") if $!connected;}
+    }
   }
 }
 
