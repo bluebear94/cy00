@@ -77,7 +77,14 @@ method login {
 }
 
 submethod BUILD(:&!callback, :@!dependencies, :$password, :$port, :$debug) {
-  $!cookie = "/dev/urandom".IO.open.read(128);
+  try {
+    $!cookie = "/dev/urandom".IO.open.read(128);
+    CATCH {
+      default {
+        $!cookie = Buf.new(|(256.rand.Int xx 128));
+      }
+    }
+  }
   $!connected = False;
   $!port = $port;
   $!debug = $debug;
