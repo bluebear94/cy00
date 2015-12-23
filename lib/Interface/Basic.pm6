@@ -9,9 +9,12 @@ unit class Interface::Basic does HTTP::Easy;
 has Blob $!cookie;
 has Str $!cookie64;
 has Str $.password;
+has Numeric $.tps = 10;
 has Bool $!connected;
 has &!callback;
 has @!dependencies;
+has Channel $!keypresses = Channel.new;
+has $!tick = 0;
 
 my %contentTypes =
   "html" => "text/html",
@@ -75,6 +78,12 @@ method login {
     CATCH {
       default {return rawMessage(400, "Password is not a valid UTF-8 string!") if $!connected;}
     }
+  }
+}
+
+method registerKeypresses(@presses) {
+  for @presses -> $keyCode {
+    $!keypresses.send({ code => +$keyCode, time => $!tick });
   }
 }
 

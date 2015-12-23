@@ -1,6 +1,10 @@
+var TPS = 10;
+var TL = 1000 / TPS;
 var term; // Can't be initialized yet because DOM is not ready
 var tl = {};
 var cookie;
+var keypresses = [];
+var hooks = {};
 
 function updateSidebar(tf) {
   var sidebar = document.getElementById("sidebar");
@@ -16,12 +20,14 @@ function start() {
 	term.render();
   updateSidebar('<div class="paleblue">Pending connection...</div>');
   connect();
+  ut.initInput(register);
+  ut.setKeyRepeatInterval(TL);
+  window.setInterval(sendKeys, TL);
 }
 
 function connect() {
   var request = new XMLHttpRequest();
   request.open("POST", "/game/login", false);
-  request.responseType = "Blob";
   request.send();
   if (request.status != 200) {
     if (request.status == 400) {
@@ -35,7 +41,6 @@ function connect() {
       if (password != null && password !== "") {
         var request = new XMLHttpRequest();
         request.open("POST", "/game/login", false);
-        request.responseType = "Blob";
         request.send(password);
         success = request.status == 200;
         cookie = request.response;
@@ -51,5 +56,12 @@ function connect() {
 }
 
 function register(keyCode) {
-  
+  keypresses.push(keyCode);
+}
+
+function sendKeys() {
+  var request = new XMLHttpRequest();
+  request.open("POST", "/game/inquire");
+  request.send(cookie + "\r\n" + keypresses.join(" "));
+  keypresses = [];
 }
