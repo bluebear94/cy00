@@ -14,6 +14,7 @@ has Bool $!connected;
 has &!callback;
 has @!dependencies;
 has Channel $!keypresses = Channel.new;
+has Channel $!issues = Channel.new;
 has $!tick = 0;
 
 my %contentTypes =
@@ -27,13 +28,16 @@ my %contentTypes =
 
 sub generate($status, @headers, @con) {
   my $content = [~] @con.map({$^s ~~ Blob ?? $^s !! "$^s\r\n".encode});
+  $content = Buf.new unless $content; # make sure $content isn't a Str
   @headers.push: ("Content-Length" => $content.bytes);
   my $top = "HTTP/1.1 $status {get_http_status_msg($status)}\r\n".encode;
   my $dt = DateTime.now();
+  say $dt;
   my $gh = "Date: $dt\r\nConnection: close\r\n".encode;
   my $rh = "Server: WebRPG/cy00\r\nAccept-Ranges: bytes\r\n".encode;
   my $eh = @headers.map({"{$_.key}: {$_.value}"}).join("\r\n").encode;
   my $res = $top ~ $gh ~ $rh ~ $eh ~ "\r\n\r\n".encode ~ $content;
+  #say $res if $res ~~ Blob && $res.bytes < 1000;
   return $res;
 }
 
@@ -48,7 +52,10 @@ method handler {
     my $req = $0;
     given $req {
       when "login" {
-        self.login;
+        return self.login;
+      }
+      when "inquire" {
+        return self.answerInquiry;
       }
       when * {
         # TODO implement game stuff
@@ -81,10 +88,32 @@ method login {
   }
 }
 
+method answerInquiry {
+  say $.body.decode;
+  my ($cookie, $presses) = $.body.decode.split(/ \r\n|\n|\r /);
+  return rawMessage(401, "Invalid cookie!") if $cookie ne $!cookie64;
+  my @presses = $presses.split(" ");
+  self.registerKeypresses(@presses);
+  #sleep(0.5 / $!tps);
+  my $oldIssues = $!issues;
+  $!issues = Channel.new;
+  $oldIssues.close;
+  return self.returnIssues($oldIssues.list);
+}
+
 method registerKeypresses(@presses) {
   for @presses -> $keyCode {
     $!keypresses.send({ code => +$keyCode, time => $!tick });
   }
+}
+
+method returnIssues(@issues) {
+  my @lines = gather for @issues -> $p {
+    take $p.key;
+    take $p.value.subst(/ \r\n|\n|\r /, "\\n", :g);
+  }
+  #die "自殺";
+  return generate(200, ['Content-Type' => 'text/plain'], @lines);
 }
 
 submethod BUILD(:&!callback, :@!dependencies, :$password, :$port, :$debug) {
@@ -104,5 +133,5 @@ submethod resetCookie {
       }
     }
   }
-  $!cookie64 = MIME::Base64.encode($!cookie);
+  $!cookie64 = MIME::Base64.encode($!cookie).subst("\n", "", :g);
 }

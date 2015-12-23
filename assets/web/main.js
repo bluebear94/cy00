@@ -62,6 +62,6 @@ function register(keyCode) {
 function sendKeys() {
   var request = new XMLHttpRequest();
   request.open("POST", "/game/inquire");
-  request.send(cookie + "\r\n" + keypresses.join(" "));
+  request.send(cookie + keypresses.join(" "));
   keypresses = [];
 }
