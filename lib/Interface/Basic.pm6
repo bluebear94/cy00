@@ -69,7 +69,7 @@ method login {
       $!connected = True;
       return generate(200, ['Content-Type' => 'binary/raw'], [$!cookie]);
     }
-    return rawMessage(401, "Wrong password!");
+    return rawMessage(401, "Wrong password or none was provided!");
     CATCH {
       default {return rawMessage(400, "Password is not a valid UTF-8 string!") if $!connected;}
     }
