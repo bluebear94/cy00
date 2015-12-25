@@ -16,6 +16,7 @@ has @!dependencies;
 has Channel $!keypresses = Channel.new;
 has Channel $!issues = Channel.new;
 has $!tick = 0;
+has $!lastActedTick = 0;
 
 my %contentTypes =
   "html" => "text/html",
@@ -91,20 +92,21 @@ method login {
 method answerInquiry {
   say $.body.decode;
   my ($cookie, $presses) = $.body.decode.split(/ \r\n|\n|\r /);
-  return rawMessage(401, "Invalid cookie!") if $cookie ne $!cookie64;
+  return rawMessage(401, "Invalid cookie! The session may have expired.") if $cookie ne $!cookie64;
   my @presses = $presses.split(" ");
   self.registerKeypresses(@presses);
-  #sleep(0.5 / $!tps);
-  my $oldIssues = $!issues;
-  $!issues = Channel.new;
-  $oldIssues.close;
-  return self.returnIssues($oldIssues.list);
+  # how much delay?
+  sleep(0.25 / $!tps);
+  #$oldIssues.close;
+  #my @issues = $oldIssues.list;
+  my @issues = gather while (my $issue = $!issues.poll).defined {take $issue;};
+  @issues.say;
+  return self.returnIssues(@issues);
 }
 
 method registerKeypresses(@presses) {
-  for @presses -> $keyCode {
-    $!keypresses.send({ code => +$keyCode, time => $!tick });
-  }
+  $!keypresses.send({ codes => @presses.Set, time => $!tick });
+  self.update if @presses;
 }
 
 method returnIssues(@issues) {
@@ -114,6 +116,10 @@ method returnIssues(@issues) {
   }
   #die "自殺";
   return generate(200, ['Content-Type' => 'text/plain'], @lines);
+}
+
+method update {
+  $!lastActedTick = $!tick;
 }
 
 submethod BUILD(:&!callback, :@!dependencies, :$password, :$port, :$debug) {
@@ -133,5 +139,5 @@ submethod resetCookie {
       }
     }
   }
-  $!cookie64 = MIME::Base64.encode($!cookie).subst("\n", "", :g);
+  $!cookie64 = MIME::Base64.encode($!cookie).subst(/ \r\n|\n|\r /, "", :g);
 }
