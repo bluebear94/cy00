@@ -100,7 +100,6 @@ method answerInquiry {
   #$oldIssues.close;
   #my @issues = $oldIssues.list;
   my @issues = gather while (my $issue = $!issues.poll).defined {take $issue;};
-  @issues.say;
   return self.returnIssues(@issues);
 }
 
