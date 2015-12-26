@@ -9,7 +9,7 @@ unit class Interface::Basic does HTTP::Easy;
 has Blob $!cookie;
 has Str $!cookie64;
 has Str $.password;
-has Numeric $.tps = 10;
+has Numeric $.tps;
 has Bool $!connected;
 has &!callback;
 has @!dependencies;
@@ -17,6 +17,7 @@ has Channel $!keypresses = Channel.new;
 has Channel $!issues = Channel.new;
 has $!tick = 0;
 has $!lastActedTick = 0;
+has $!ticker;
 
 my %contentTypes =
   "html" => "text/html",
@@ -121,12 +122,20 @@ method update {
   $!lastActedTick = $!tick;
 }
 
-submethod BUILD(:&!callback, :@!dependencies, :$password, :$port, :$debug) {
+submethod BUILD(:&!callback, :@!dependencies, Str :$password, Int :$port, Bool :$debug, Numeric :$tps = 10) {
   self.resetCookie;
   $!connected = False;
   $!port = $port;
   $!debug = $debug;
   $!password = $password;
+  $!tps = $tps;
+  $!tick = 0;
+  $!lastActedTick = 0;
+  $!ticker = Supply.interval(1 / $!tps);
+  $!ticker.tap: {
+    ++$!tick;
+    self.resetCookie if $!tick > $!lastActedTick + 300 * $!tps;
+  };
 }
 
 submethod resetCookie {
@@ -139,4 +148,16 @@ submethod resetCookie {
     }
   }
   $!cookie64 = MIME::Base64.encode($!cookie).subst(/ \r\n|\n|\r /, "", :g);
+}
+
+method getKeys {
+  my $keys;
+  repeat {
+    $keys = $!keypresses.poll;
+  } while $keys && $keys<time> == $!tick;
+  return $keys.codes;
+}
+
+method end {
+  $!ticker.done;
 }
