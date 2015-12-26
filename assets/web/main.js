@@ -30,7 +30,7 @@ function start() {
 function execIssues(lines) {
   for (var i = 0; i < (lines.length >> 1); ++i) {
     var issue = lines[i << 1];
-    var content = lines[(i << 1) + 1];
+    var content = lines[(i << 1) + 1].replace("\\n", "\n");
     hooks[issue](content);
   }
 }
