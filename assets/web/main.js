@@ -4,7 +4,9 @@ var term; // Can't be initialized yet because DOM is not ready
 var tl = {};
 var cookie;
 var keypresses = [];
-var hooks = {};
+var hooks = {
+  "eval": eval,
+};
 
 function updateSidebar(tf) {
   var sidebar = document.getElementById("sidebar");
@@ -25,7 +27,20 @@ function start() {
   window.setInterval(sendKeys, TL);
 }
 
+function execIssues(lines) {
+  for (var i = 0; i < (lines.length >> 1); ++i) {
+    var issue = lines[i << 1];
+    var content = lines[(i << 1) + 1];
+    hooks[issue](content);
+  }
+}
+
 function connect() {
+  function init(response) {
+    var lines = response.trim().split("\n");
+    cookie = lines.shift();
+    execIssues(lines);
+  }
   var request = new XMLHttpRequest();
   request.open("POST", "/game/login", false);
   request.send();
@@ -43,14 +58,14 @@ function connect() {
         request.open("POST", "/game/login", false);
         request.send(password);
         success = request.status == 200;
-        cookie = request.response;
+        init(request.response);
       } else {
         close();
         return;
       }
     }
   } else {
-    cookie = request.response;
+    init(request.response);
   }
   updateSidebar('<div class="palegreen">Logged in.</div>');
 }
@@ -59,9 +74,15 @@ function register(keyCode) {
   keypresses.push(keyCode);
 }
 
+function answerInquiryResponse() {
+  var lines = this.response.trim().split("\n");
+  execIssues(lines);
+}
+
 function sendKeys() {
   var request = new XMLHttpRequest();
+  request.addEventListener("load", answerInquiryResponse);
   request.open("POST", "/game/inquire");
-  request.send(cookie + keypresses.join(" "));
+  request.send(cookie + "\n" + keypresses.join(" "));
   keypresses = [];
 }

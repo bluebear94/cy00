@@ -28,16 +28,16 @@ my %contentTypes =
   ;
 
 sub generate($status, @headers, @con) {
-  my $content = [~] @con.map({$^s ~~ Blob ?? $^s !! "$^s\r\n".encode});
+  my $content = [~] @con.map({$^s ~~ Blob ?? $^s !! "$^s\n".encode});
   $content = Buf.new unless $content; # make sure $content isn't a Str
   @headers.push: ("Content-Length" => $content.bytes);
-  my $top = "HTTP/1.1 $status {get_http_status_msg($status)}\r\n".encode;
+  my $top = "HTTP/1.1 $status {get_http_status_msg($status)}\n".encode;
   my $dt = DateTime.now();
   say $dt;
-  my $gh = "Date: $dt\r\nConnection: close\r\n".encode;
-  my $rh = "Server: WebRPG/cy00\r\nAccept-Ranges: bytes\r\n".encode;
-  my $eh = @headers.map({"{$_.key}: {$_.value}"}).join("\r\n").encode;
-  my $res = $top ~ $gh ~ $rh ~ $eh ~ "\r\n\r\n".encode ~ $content;
+  my $gh = "Date: $dt\nConnection: close\n".encode;
+  my $rh = "Server: WebRPG/cy00\nAccept-Ranges: bytes\n".encode;
+  my $eh = @headers.map({"{$_.key}: {$_.value}"}).join("\n").encode;
+  my $res = $top ~ $gh ~ $rh ~ $eh ~ "\n\n".encode ~ $content;
   #say $res if $res ~~ Blob && $res.bytes < 1000;
   return $res;
 }
@@ -80,7 +80,7 @@ method login {
     my $success = !($!password.defined) || ($!password eq $password);
     if $success {
       $!connected = True;
-      return rawMessage(200, $!cookie64);
+      return rawMessage(200, "$!cookie64\neval\nalert('Testing issues.')");
     }
     return rawMessage(401, "Wrong password or none was provided!");
     CATCH {
