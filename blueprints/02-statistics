@@ -1,1 +1,24 @@
 Statistics:
+
+Character-specific statistics that persist from battle to battle
+  level (150 ~ 200 in the endgame, even without a theoretical limit)
+  experience (perhaps O(level ^ 2.6))
+  HP
+  element mastery (see notes below)
+    characters start with 100% mastery in one element
+    100% or more mastery -> yellow motes count as 2
+    gained by casting spells
+    300% mastery -> can start using spells from sub-elements
+    both level and mastery% required to learn new spells permanently
+  max # of motes usable in one spell: see spreadsheet
+  max # of motes that can be held: ???
+  decks
+  learned spells
+
+Character-specific statistics that are specific to a battle
+  current mote count
+  held buffs/debuffs
+  hands
+
+Statistics shared by a party:
+  inventory
