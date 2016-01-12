@@ -10,14 +10,14 @@ method capacity() returns T { ... }
 
 method add(T $x) {
   return self.clone(
-    current => max(0, min(capacity, $!current + $x))
+    current => max(0, min(self.capacity, $!current + $x))
   );
 }
 
-multi infix:<+>(Statistics::Bin $b, $x) {
+multi infix:<+>(Statistics::Bin $b, $x) is export {
   return $b.add($x);
 }
 
-multi infix:<->(Statistics::Bin $b, $x) {
+multi infix:<->(Statistics::Bin $b, $x) is export {
   return $b.add(-$x);
 }
