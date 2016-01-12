@@ -1,0 +1,23 @@
+Node data are generated at the start and stored in respective dimension's
+directory.
+
+Nodes are spaced at least 256 blocks apart from each other.
+
+They denote major regions (differences in biome).
+
+Stored data include:
+* temp/humid
+* location and size of villages (if present)
+* flora/fauna
+
+Since all nodes are at least 256 blocks away from any other, we can place
+villages within a region as long as no portion of them lies more than 128
+blocks away from a node. If we don't mind villages crossing region boundaries,
+then we can get away with going farther away.
+
+Regions are Voronoi diagrams; tiles get an X/Y fudge factor based on Perlin
+noise so the boundaries aren't perfect lines.
+
+TODO: also scrap UNBT in favor of an alternate format?
+Sized int types themselves are not that important (though sized int ARRAYS
+are); it would suffice to have storage types for Int's, Rat's, and Num's.

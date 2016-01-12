@@ -4,6 +4,9 @@ var term; // Can't be initialized yet because DOM is not ready
 var tl = {};
 var cookie;
 var keypresses = [];
+
+// Technically you could start ex nihilo (only this script on index.html, and
+// eval being the only hook), but I'm a practical fuck.
 var hooks = {
   "eval": eval,
 };
