@@ -1,0 +1,13 @@
+Save format:
+
+Should be easy to read and write from Perl 6 without special shenanigans.
+(This means storing data about metaobjects.)
+Should be reasonably compact. (Perhaps using zlib.)
+Use backrefs to reduce redundant strings.
+Should support packed arrays.
+Should support bigints.
+
+Will probably need a trait `is transient` to mark fields that shouldn't be
+serialized.
+Will probably have trouble serializing classes that override methods, or
+compose roles.

@@ -22,3 +22,5 @@ Character-specific statistics that are specific to a battle
 
 Statistics shared by a party:
   inventory
+  records:
+    max damage in one hit
