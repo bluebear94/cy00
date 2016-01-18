@@ -2,9 +2,10 @@ use v6;
 
 use lib './lib';
 use Test;
+use Data::Serialize::Serializable;
 use Data::Serialize::Transient;
 
-class A {
+class A does Serializable {
   has $.a;
   has $.b is transient;
 }

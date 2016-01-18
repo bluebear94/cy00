@@ -18,9 +18,11 @@ Character-specific statistics that persist from battle to battle
 Character-specific statistics that are specific to a battle
   current mote count
   held buffs/debuffs
-  hands
+  cards in hand
 
 Statistics shared by a party:
   inventory
   records:
     max damage in one hit
+  location
+  players
