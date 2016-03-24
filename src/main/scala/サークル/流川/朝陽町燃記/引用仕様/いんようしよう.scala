@@ -6,7 +6,7 @@ import scopt._
  * @author ウルヰ
  */
 trait いんようしよう {
-  def スタート(せ: 設定)
+  def スタート(せ: 設定): Unit
   def main(引数: Array[String]) {
     いんようしよう.パーサー.parse(引数, 設定()) match {
       case Some(s) => {

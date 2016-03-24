@@ -8,7 +8,7 @@ case object Swing extends いんようしよう {
   def スタート(せ: 設定) {
     println("妖夢です")
     for (i <- 0 to 100) {
-      //println(せいすう(1) ~ 100)
+      println(BigInt(1) ~ (BigInt(10).pow(100)))
     }
   }
 }
