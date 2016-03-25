@@ -18,6 +18,8 @@ class ゲーム(
     else if (!セーブディレクトリ.isDirectory())
       throw new RuntimeException(
           セーブディレクトリ.toString + "はディレクトリじゃないでファイルです。")
-    // メインコード
+    else {
+      // メインコード
+    }
   }
 }
