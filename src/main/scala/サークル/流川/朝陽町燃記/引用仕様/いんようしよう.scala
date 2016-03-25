@@ -1,6 +1,7 @@
 package サークル.流川.朝陽町燃記.引用仕様
 
 import scopt._
+import サークル.流川.朝陽町燃記._
 import サークル.流川.朝陽町燃記.言語._
 
 /**
@@ -9,6 +10,7 @@ import サークル.流川.朝陽町燃記.言語._
 trait いんようしよう {
   def スタート(せ: 設定): Unit
   var 現代言語: げんご = null
+  var げ: ゲーム = null
   def main(引数: Array[String]) {
     現代言語 = new 日本語()
     いんようしよう.パーサー.parse(引数, 設定()) match {
