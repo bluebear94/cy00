@@ -29,4 +29,20 @@ class 座標テスト extends FlatSpec with ShouldMatchers {
     そこ.行化(98) should equal (座標(37, 98))
     あそこ.行化(100) should equal (座標(-98, 100))
   }
+  "左" should "subtract from X coord" in {
+    ここ.左 should equal (座標(33, 323))
+    そこ.左(3) should equal (座標(34, 317))
+  }
+  "右" should "add to X coord" in {
+    ここ.右 should equal (座標(35, 323))
+    そこ.右(3) should equal (座標(40, 317))
+  }
+  "上" should "subtract from Y coord" in {
+    ここ.上 should equal (座標(34, 322))
+    そこ.上(3) should equal (座標(37, 314))
+  }
+  "下" should "add to Y coord" in {
+    ここ.下 should equal (座標(34, 324))
+    そこ.下(3) should equal (座標(37, 320))
+  }
 }
