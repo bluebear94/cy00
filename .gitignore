@@ -126,3 +126,4 @@ $RECYCLE.BIN/
 saves/
 
 .cache-main
+.cache-tests
