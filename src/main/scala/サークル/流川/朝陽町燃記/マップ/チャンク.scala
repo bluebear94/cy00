@@ -8,13 +8,16 @@ import java.io.File
  */
 class チャンク(
     val チャンク座標: 座標,
-    val ノードデータ: Array[ノード]
+    val パラ: ワールドパラメター
     ) {
   val ブロック: Array[Int] = new Array[Int](16 * 16)
+  val 高度: Array[Int] = new Array[Int](16 * 16)
   val タイル: LongMap[タイルエンティティ] = new LongMap
   val エンティティ: LongMap[生物] = new LongMap
   def ブロック(チャンク内: 座標): Int =
     ブロック((チャンク内.行 << 4) + (チャンク内.列))
+  def 高度(チャンク内: 座標): Int =
+    高度((チャンク内.行 << 4) + (チャンク内.列))
   def タイル(チャンク内: 座標): タイルエンティティ =
     タイル(チャンク内.行列)
   def エンティティ(チャンク内: 座標): 生物 =
