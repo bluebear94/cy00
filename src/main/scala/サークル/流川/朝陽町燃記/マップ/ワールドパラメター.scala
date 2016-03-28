@@ -93,7 +93,9 @@ class ワールドパラメター(
           } else {
             val ノード行 =
               ノードデータ.getInt(オフセット + 4)
-            if (ノード列 * ノード列 + ノード行 * ノード行 < 65536)
+            val dx = ここ.列 - ノード列
+            val dy = ここ.行 - ノード行
+            if (dx * dx + dy * dy < 65536)
               return true
           }
         }
