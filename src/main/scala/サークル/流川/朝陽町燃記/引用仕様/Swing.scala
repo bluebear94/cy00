@@ -23,13 +23,24 @@ case object Swing extends SimpleSwingApplication
     background = new Color(0, 60, 0)
     foreground = Color.WHITE
   }
+  val バー = new ProgressBar() {
+    background = Color.BLACK
+    foreground = Color.GREEN
+    preferredSize = new Dimension(640, 20)
+    min = 0
+    max = 640
+    visible = false
+  }
   override def main(引数: Array[String]) =
     super[いんようしよう].main(引数)
   def top = new MainFrame {
     title = 現代言語.タイトル
-    contents = new BoxPanel(Orientation.Horizontal) {
-      contents += 画面
-      contents += メッセージ画面
+    contents = new BoxPanel(Orientation.Vertical) {
+      contents += new BoxPanel(Orientation.Horizontal) {
+        contents += 画面
+        contents += メッセージ画面
+      }
+      contents += バー
       focusable = true
       requestFocus()
       listenTo(keys, 画面.keys, メッセージ画面.keys)
@@ -37,9 +48,20 @@ case object Swing extends SimpleSwingApplication
   }
   def スタート(せ: 設定) {
     println("妖夢です")
-    val げ = new ゲーム("test", this)
-    げ.初期化()
     super[SimpleSwingApplication].main(Array[String]())
+    げ.初期化()
+  }
+  def ロードバー表示(): Unit = {
+    バー.visible = true
+  }
+  def ロードバー非表示(): Unit = {
+    バー.visible = false
+  }
+  def ロードバー進捗(分数: Double): Unit = {
+    バー.value = (分数 * 640).toInt
+  }
+  def プリント(メッセージ: String): Unit = {
+    メッセージ画面.text += "\n" + メッセージ
   }
 }
 

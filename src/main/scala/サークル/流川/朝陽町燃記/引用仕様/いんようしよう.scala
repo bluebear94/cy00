@@ -17,7 +17,10 @@ trait いんようしよう {
       case Some(s) => {
         val 百万 = BigInt(1000000)
         s.カンスト match {
-          case None => スタート(s)
+          case None => {
+            げ = new ゲーム("test", this)
+            スタート(s)
+          }
           case Some(`百万`) => println("海外MMOじゃないですよ")
           case Some(_) => println("でもカンスト欲しくない！！！")
         }
@@ -25,6 +28,10 @@ trait いんようしよう {
       case None => println("馬鹿ですよ")
     }
   }
+  def ロードバー表示(): Unit
+  def ロードバー非表示(): Unit
+  def ロードバー進捗(分数: Double): Unit
+  def プリント(メッセージ: String): Unit
 }
 
 object いんようしよう {
