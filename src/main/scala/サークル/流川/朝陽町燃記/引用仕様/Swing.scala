@@ -37,6 +37,8 @@ case object Swing extends SimpleSwingApplication
   }
   def スタート(せ: 設定) {
     println("妖夢です")
+    val げ = new ゲーム("test", this)
+    げ.初期化()
     super[SimpleSwingApplication].main(Array[String]())
   }
 }

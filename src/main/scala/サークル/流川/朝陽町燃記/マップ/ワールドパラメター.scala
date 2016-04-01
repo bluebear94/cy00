@@ -3,10 +3,12 @@ package サークル.流川.朝陽町燃記.マップ
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import java.nio.ByteBuffer
+import サークル.流川.朝陽町燃記._
 
 class ワールドパラメター(
     ランダム: Random,
-    セーブ名: String
+    セーブ名: String,
+    げ: ゲーム
     ) {
   val 種: Long = ランダム.nextLong
   val ブロックノード数 = 40
@@ -85,22 +87,22 @@ class ワールドパラメター(
     while (i < 4) {
       val インデックス = インデックスリスト.toShort
       if (インデックス != -1) {
-        val オフセット = ブロックノード数 * ノードサイズ * インデックス
+        var オフセット = ブロックノード数 * ノードサイズ * インデックス
         var 完成 = false
         while (!完成) {
           val ノード列 =
-            ノードデータ.getInt(オフセット) +
-            0x80000000
+            ノードデータ.getInt(オフセット) + 0x80000000
           if (ノード列 == -0x80000000) {
             完成 = true
           } else {
             val ノード行 =
-              ノードデータ.getInt(オフセット + 4)
+              ノードデータ.getInt(オフセット + 4) + 0x80000000
             val dx = ここ.列 - ノード列
             val dy = ここ.行 - ノード行
             if (dx * dx + dy * dy < 65536)
               return true
           }
+          オフセット += ノードサイズ
         }
       }
       インデックスリスト >>= 16
@@ -110,6 +112,7 @@ class ワールドパラメター(
   }
   def ノード実装(): Unit = {
     var 失敗数 = 0
+    var ノード数 = 0
     while (失敗数 < 10) {
       val 行 = ランダム.nextInt(65536) - 32768
       val 列 = ランダム.nextInt(65536) - 32768
@@ -126,11 +129,15 @@ class ワールドパラメター(
             座標(列, 行),
             (ランダム.nextInt(256) + (行 >> 1) + 16384).toShort,
             ランダム.nextInt(32768).toShort,
-            0, 0, 127
+            0, 0, 64
             ))
+        ノードカウント.put(インデックス, (カウント + 1).toByte)
+        ノード数 += 1
+        失敗数 = 0
       } else {
         失敗数 += 1
       }
     }
+    println(ノード数 + "個のノードが実装された。")
   }
 }
